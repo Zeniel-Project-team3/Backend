@@ -238,3 +238,6 @@ gradle-app.setting
 *.hprof
 
 # End of https://www.toptal.com/developers/gitignore/api/intellij,windows,macos,gradle
+
+# 상담리스트 등 개인/가공 데이터 (업로드 금지)
+*.xlsx
