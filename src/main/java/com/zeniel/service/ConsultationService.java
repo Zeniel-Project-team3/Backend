@@ -29,9 +29,15 @@ public class ConsultationService {
                 .findByNameAndResidentId(
                         request.getName(),
                         request.getResidentId()
-                ).orElseThrow(() -> new IllegalArgumentException(
-                        "내담자를 찾을 수 없습니다." + request.getName()
-                ));
+                )
+                .orElseGet(() -> {
+                    // DB에 없으면 새 내담자 생성
+                    Clients newClient = Clients.builder()
+                            .name(request.getName())
+                            .residentId(request.getResidentId())
+                            .build();
+                    return clientRepository.save(newClient);
+                });
 
         // 2단계: 파일 텍스트 추출
         String rawText = extractText(file);

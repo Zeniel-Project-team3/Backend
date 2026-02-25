@@ -6,6 +6,7 @@ import com.zeniel.service.ConsultationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,15 +22,12 @@ public class ConsultationController {
     @PostMapping("/upload")
     public ResponseEntity<ConsultationUploadResponse> upload(
             @RequestPart("file") MultipartFile file,
-            @RequestPart("name") String name,
-            @RequestPart("residentId") String residentId
+            @RequestBody ConsultationUploadRequest request
     ) {
-        ConsultationUploadRequest request =
-                new ConsultationUploadRequest(name, residentId);
 
         ConsultationUploadResponse response =
                 consultationService.upload(file, request);
-        
+
         return ResponseEntity.ok(response);
     }
 }
