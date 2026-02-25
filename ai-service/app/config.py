@@ -34,7 +34,7 @@ class Settings(BaseSettings):
     chat_model: str = "gpt-4o-mini"
     llm_mode: str = "quick"
     llm_max_cases: int = 5
-    llm_max_output_tokens: int = 220
+    llm_max_output_tokens: int = 380
     openai_timeout_seconds: float = 12.0
 
 

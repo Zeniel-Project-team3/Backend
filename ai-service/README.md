@@ -58,3 +58,33 @@ DB_NAME=postgres
 DB_USER=postgres
 DB_PASSWORD=postgres
 ```
+
+## Docker로 배포 후 Java에서 호출
+
+1. 이미지 빌드 및 실행
+
+```bash
+cd /home/kosa/Backend/ai-service
+docker build -t ai-recommendation-service .
+docker run -d -p 8001:8001 --env-file .env ai-recommendation-service
+```
+
+2. Java에서 JSON으로 요청/응답
+
+- **요청:** `POST http://<AI서버호스트>:8001/api/v1/recommend`
+- **Request Body (JSON):** `{"clientId": 123, "topK": 5}`
+- **Response (JSON):** `AiResponseDto` 형태 (clientId, maskedInput, queryText, similarCases, recommendation)
+
+예시 (Spring `RestClient` / `WebClient`):
+
+```java
+// RestClient
+AiRequestDto request = new AiRequestDto(123, 5);
+AiResponseDto response = restClient.post()
+    .uri("http://ai-service-host:8001/api/v1/recommend")
+    .body(request)
+    .retrieve()
+    .body(AiResponseDto.class);
+```
+
+Docker로 띄운 뒤 같은 네트워크면 `ai-service-host` 대신 컨테이너명/서비스 URL을 쓰면 된다.

@@ -174,7 +174,7 @@ def build_llm_recommendation(
         return build_rule_based_recommendation(similar_cases)
 
     mode = (settings.llm_mode or "quick").lower()
-    max_cases = settings.llm_max_cases if settings.llm_max_cases > 0 else 3
+    max_cases = min(settings.llm_max_cases if settings.llm_max_cases > 0 else 5, len(similar_cases))
     base = build_rule_based_recommendation(similar_cases)
     compressed_cases = similar_cases[:max_cases]
     compressed_cases = [
@@ -190,7 +190,8 @@ def build_llm_recommendation(
             "jobTitles": normalize_desired_jobs(case.get("jobTitle")),
             "companyName": case.get("companyName"),
             "salary": case.get("salary"),
-            "trainings": (case.get("trainings") or [])[:2],
+            "trainings": case.get("trainings") or [],
+            "consultationSummary": case.get("consultationSummary"),
         }
         for case in compressed_cases
     ]
@@ -198,7 +199,12 @@ def build_llm_recommendation(
     system_prompt = (
         "너는 고용 상담 AI다. 반드시 JSON만 반환한다. "
         "PII(이름/주민번호)는 절대 생성하거나 복원하지 않는다. "
-        "짧고 실무적인 추천만 생성한다."
+        "다음 규칙을 지켜라: "
+        "recommendedJobs는 꼭 3개만, 해당 내담자에게 적합한 순서(1위~3위)로 나열. "
+        "recommendedTrainings는 추천 직무 3개와 연관된 과정명만 3개, 중요도순. "
+        "expectedSalaryRange는 추천 직무에 맞는 연봉 범위 한 문장. "
+        "suggestedServices는 3개, 중요도순. "
+        "coreQuestions는 3개, 이번 상담에서 쓸 핵심 질문으로 중요도순."
     )
     user_prompt = {
         "mode": mode,
@@ -213,13 +219,13 @@ def build_llm_recommendation(
         "similarCases": compressed_cases,
         "baseRecommendation": base,
         "outputFormat": {
-            "recommendedTrainings": ["string"],
-            "recommendedJobs": ["string"],
-            "recommendedCompanies": ["string"],
-            "expectedSalaryRange": "string|null",
-            "suggestedServices": ["string"],
-            "coreQuestions": ["string"],
-            "reason": "string",
+            "recommendedJobs": "배열 3개, 1위~3위 직무",
+            "recommendedTrainings": "배열 3개, 추천 직무와 연관된 과정명",
+            "recommendedCompanies": "배열",
+            "expectedSalaryRange": "추천 직무 기준 연봉 범위 문자열",
+            "suggestedServices": "배열 3개, 중요도순",
+            "coreQuestions": "배열 3개, 중요도순",
+            "reason": "GPT 판단 근거",
         },
     }
 
@@ -237,8 +243,16 @@ def build_llm_recommendation(
         content = response.choices[0].message.content or "{}"
 
         parsed = json.loads(content)
-        # LLM이 일부 키를 누락해도 응답 안정성 유지
         base.update({k: v for k, v in parsed.items() if v is not None})
+        # 직무 3개, 과정 3개, 서비스 3개, 질문 3개로 제한
+        def take3(lst: list[str] | None) -> list[str]:
+            if not lst:
+                return []
+            return [x for x in lst if x][:3]
+        base["recommendedJobs"] = take3(base.get("recommendedJobs"))
+        base["recommendedTrainings"] = take3(base.get("recommendedTrainings"))
+        base["suggestedServices"] = take3(base.get("suggestedServices"))
+        base["coreQuestions"] = take3(base.get("coreQuestions"))
         return base
     except Exception:
         return build_rule_based_recommendation(similar_cases)
