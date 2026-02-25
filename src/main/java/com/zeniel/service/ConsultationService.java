@@ -6,6 +6,8 @@ import com.zeniel.entity.Consultation;
 import com.zeniel.entity.client.Clients;
 import com.zeniel.repository.ClientRepository;
 import com.zeniel.repository.ConsultationRepository;
+import com.zeniel.utility.ContextBuilder;
+import com.zeniel.utility.EmbeddingService;
 import lombok.RequiredArgsConstructor;
 import org.apache.tika.Tika;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,8 @@ public class ConsultationService {
 
     private final ClientRepository clientRepository;
     private final ConsultationRepository consultationRepository;
+    private final ContextBuilder contextBuilder;
+    private final EmbeddingService embeddingService;
 
     @Transactional
     public ConsultationUploadResponse upload(
@@ -42,9 +46,14 @@ public class ConsultationService {
         // 2단계: 파일 텍스트 추출
         String rawText = extractText(file);
 
-        // 3단계: 상담 기록 생성 + 내담자에 연결
+        // 3단계: 벡터 임베딩 생성
+        String context = contextBuilder.build(client, rawText);
+        float[] embedding = embeddingService.createEmbedding(context);
+
+        // 4단계: 상담 기록 생성 (embedding 포함)
         Consultation consultation = Consultation.builder()
                 .rawText(rawText)
+                .embedding(embedding)
                 .build();
 
         client.getConsultations().add(consultation);

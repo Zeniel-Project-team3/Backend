@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import org.hibernate.annotations.Array;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Getter
@@ -31,4 +34,9 @@ public class Consultation extends BaseTimeEntity {
 
     @Column
     private Integer iapPeriod;
+
+    @JdbcTypeCode(SqlTypes.VECTOR)
+    @Array(length = 1536)
+    @Column(columnDefinition = "vector(1536)")
+    private float[] embedding;
 }
