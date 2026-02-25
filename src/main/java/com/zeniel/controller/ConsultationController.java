@@ -22,7 +22,7 @@ public class ConsultationController {
     @PostMapping("/upload")
     public ResponseEntity<ConsultationUploadResponse> upload(
             @RequestPart("file") MultipartFile file,
-            @RequestBody ConsultationUploadRequest request
+            @RequestPart("request") ConsultationUploadRequest request
     ) {
 
         ConsultationUploadResponse response =
