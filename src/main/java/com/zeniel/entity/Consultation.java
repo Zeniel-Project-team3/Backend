@@ -20,11 +20,9 @@ public class Consultation extends BaseTimeEntity {
     @Column
     private LocalDate consultDate; // 상담 일자
 
-    @Lob
     @Column(columnDefinition = "text")
     private String rawText; // 상담 내용 - 원문
 
-    @Lob
     @Column(columnDefinition = "text")
     private String summary; // 상담 내용 - AI 요약
 
