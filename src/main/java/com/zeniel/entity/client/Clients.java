@@ -34,7 +34,7 @@ public class Clients extends BaseTimeEntity {
     @Column
     private LocalDate birthDate;
 
-    @Column(length = 13, unique = true)
+    @Column(length = 14, unique = true)
     private String residentId; // 주민번호
 
     @Column(length = 20)
