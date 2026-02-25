@@ -3,6 +3,7 @@ package com.zeniel.repository;
 import com.zeniel.entity.client.Clients;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -49,4 +50,6 @@ public interface ClientRepository extends JpaRepository<Clients, Long> {
             nativeQuery = true
     )
     Page<ClientListProjection> findClientList(Pageable pageable);
+
+    Optional<Clients> findByNameAndResidentId(String name, String residentId);
 }
