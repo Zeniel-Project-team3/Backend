@@ -5,7 +5,6 @@ import com.zeniel.dto.ConsultationUploadResponse;
 import com.zeniel.entity.Consultation;
 import com.zeniel.entity.client.Clients;
 import com.zeniel.repository.ClientRepository;
-import com.zeniel.repository.ConsultationRepository;
 import com.zeniel.utility.ContextBuilder;
 import com.zeniel.utility.EmbeddingService;
 import lombok.RequiredArgsConstructor;
@@ -19,9 +18,9 @@ import org.springframework.web.multipart.MultipartFile;
 public class ConsultationService {
 
     private final ClientRepository clientRepository;
-    private final ConsultationRepository consultationRepository;
     private final ContextBuilder contextBuilder;
     private final EmbeddingService embeddingService;
+    private final Tika tika = new Tika();
 
     @Transactional
     public ConsultationUploadResponse upload(
@@ -69,7 +68,6 @@ public class ConsultationService {
     // 파일 텍스트 추출 메서드
     private String extractText(MultipartFile file) {
         try {
-            Tika tika = new Tika();
             return tika.parseToString(file.getInputStream());
         } catch (Exception e) {
             throw new IllegalStateException(
