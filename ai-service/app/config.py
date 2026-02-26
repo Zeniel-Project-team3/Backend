@@ -29,7 +29,10 @@ class Settings(BaseSettings):
         validation_alias=AliasChoices("DB_PASSWORD", "db_password"),
     )
 
-    openai_api_key: str = ""
+    openai_api_key: str = Field(
+        default="",
+        validation_alias=AliasChoices("OPENAI_API_KEY", "openai_api_key"),
+    )
     ingest_excel_path: str = Field(
         default="",
         validation_alias=AliasChoices("INGEST_EXCEL_PATH", "ingest_excel_path"),

@@ -135,7 +135,7 @@ cp .env.example .env
 
 **필수:**
 
-- `OPENAI_API_KEY` — GPT·임베딩 호출용
+- `OPENAI_API_KEY` — GPT·임베딩 호출용. **로컬**: `.env`에 설정. **CI/GitHub Actions**: 저장소 **Settings → Secrets and variables → Actions** 에 `OPENAI_API_KEY` 시크릿으로 등록 후 워크플로에서 사용.
 - `DB_URL` 또는 `DB_HOST`/`DB_PORT`/`DB_NAME`/`DB_USER`/`DB_PASSWORD` — 위에서 준비한 PostgreSQL 접속 정보
 
 **선택:**

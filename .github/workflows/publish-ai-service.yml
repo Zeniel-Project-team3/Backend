@@ -19,6 +19,9 @@ jobs:
     permissions:
       contents: read
       packages: write
+    # OPENAI_API_KEY는 저장소 Settings → Secrets and variables → Actions 에서 등록
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
     steps:
       - name: Checkout
