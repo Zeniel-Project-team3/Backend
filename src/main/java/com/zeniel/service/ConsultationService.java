@@ -22,6 +22,7 @@ public class ConsultationService {
     private final ClientRepository clientRepository;
     private final ConsultationRepository consultationRepository;
     private final RestTemplate restTemplate;
+    private final AiSummaryService aiSummaryService;
 
     @Transactional
     public ConsultationUploadResponse upload(
@@ -46,11 +47,16 @@ public class ConsultationService {
         // 2단계: 파일 텍스트 추출
         String rawText = extractText(file);
 
-        // 3단계: 상담 기록 생성 + 내담자에 연결
+        // 3단계: AI로 요약 생성
+        String summary = aiSummaryService.summarize(rawText);
+
+        // 4단계: 상담 기록 생성 + 내담자에 연결
         Consultation consultation = Consultation.builder()
                 .rawText(rawText)
+                .summary(summary)
                 .build();
 
+        consultationRepository.save(consultation);
         client.getConsultations().add(consultation);
 
         return new ConsultationUploadResponse(

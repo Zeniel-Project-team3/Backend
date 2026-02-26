@@ -5,6 +5,9 @@ spring:
         speech: none
     openai:
       api-key: ${OPENAI_API_KEY}
+      chat:
+        options:
+          model: gpt-4o-mini
   config:
     import: optional:file:.env[.properties]
   datasource:
