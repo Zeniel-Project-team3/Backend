@@ -14,15 +14,21 @@ public class EmbeddingController {
 
     @GetMapping("/")
     public String embedding(@RequestParam("clientId") Long clientId) {
-        embeddingService.saveConsultation(clientId);
+        embeddingService.saveVector(clientId);
+        return "콘솔 확인";
+    }
+
+    @PutMapping("/embeddingTest")
+    public String embedding() {
+        for (Long i = 1L; i <= 150L; i++) {
+            embeddingService.saveVector(i);
+        }
         return "콘솔 확인";
     }
 
     @PutMapping("/embedding")
-    public String embedding() {
-        for (Long i = 1L; i <= 150L; i++) {
-            embeddingService.saveConsultation(i);
-        }
+    public String updateEmbedding(@RequestParam("clientId") Long clientId) {
+        embeddingService.saveVector(clientId);
         return "콘솔 확인";
     }
     
