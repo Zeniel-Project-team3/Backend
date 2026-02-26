@@ -1,5 +1,9 @@
 package com.zeniel.service;
 
+import com.zeniel.dto.ClientRegisterRequest;
+import com.zeniel.dto.ClientRegisterResponse;
+import com.zeniel.repository.ClientRepository;
+import com.zeniel.utility.ContextBuilder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +22,13 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 public class ClientService {
+
+    @Autowired
+    private ContextBuilder contextBuilder;
+
+    @Autowired
+    private ClientRepository clientRepository;
+
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
@@ -156,5 +167,47 @@ public class ClientService {
         // 임베딩 반영
         embeddingService.saveVector(request.getId());
         return updated;        
+    }
+
+    @Transactional
+    public ClientRegisterResponse register(ClientRegisterRequest request) {
+
+        clientRepository.findByNameAndResidentId(request.getName(), request.getResidentId())
+                .ifPresent(c -> {
+                    throw new IllegalArgumentException("이미 등록된 내담자입니다.");
+                });
+
+        // 1단계: client 엔티티 생성 후 DB 저장
+        Clients client = Clients.builder()
+                .name(request.getName())
+                .residentId(request.getResidentId())
+                .age(request.getAge())
+                .gender(request.getGender())
+                .competency(request.getCompetency())
+                .desiredJob(request.getDesiredJob())
+                .address(request.getAddress())
+                .university(request.getUniversity())
+                .major(request.getMajor())
+                .education(request.getEducation())
+                .build();
+
+        clientRepository.save(client);
+
+        // 2단계: 8개 필드를 텍스트로 조합
+        String contextText = contextBuilder.build(client);
+
+        // 3단계: 임베딩 생성
+        float[] embedding = embeddingService.createEmbedding(contextText);
+
+        // 4단계: 임베딩 저장
+        client.setEmbedding(embedding);
+
+        // 5단계: 응답 반환
+        return new ClientRegisterResponse(
+                client.getId(),
+                client.getName(),
+                "DONE",
+                "내담자가 성공적으로 등록되었습니다."
+        );
     }
 }
