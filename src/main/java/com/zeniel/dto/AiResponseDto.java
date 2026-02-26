@@ -12,6 +12,9 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 public class AiResponseDto {
+
+    private Long clientId;
+
     // 금회차 핵심 목표 (상담의 방향성)
     private String consultationGoal;
 
