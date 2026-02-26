@@ -239,3 +239,8 @@ gradle-app.setting
 
 .env
 # End of https://www.toptal.com/developers/gitignore/api/intellij,windows,macos,gradle
+ai-service/.env
+ai-service/.venv
+ai-service/app/__pycache__
+상담리스트_가공데이터_202602.xlsx
+ai-service/venv
