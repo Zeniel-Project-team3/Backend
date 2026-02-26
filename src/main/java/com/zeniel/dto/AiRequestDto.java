@@ -28,7 +28,4 @@ public class AiRequestDto { // ai 상담시나리오 요청
     private String desiredJob;       // 희망 직종
     private String competency;       // 보유 역량 (자격증, 기술 등)
     private String businessType;     // 선호하는 업종 타입
-
-    // 추가 컨텍스트
-    private String embeddingData;        // 상담 시나리오 생성에 활용할 임베딩 데이터 (예: 과거 상담 내용 요약, 주요 키워드 등)
 }

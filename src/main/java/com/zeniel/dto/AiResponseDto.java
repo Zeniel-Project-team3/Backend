@@ -21,12 +21,12 @@ public class AiResponseDto {
     // 제안할 서비스 (예: 직업심리검사, 일경험 등)
     private String suggestedServices;
 
-    // 맞춤형 상담 스크립트 (내담자 특성 반영 대화문)
-    private String script;
-
     // 이번 상담 핵심 질문 (내담자의 의지를 파악할 질문)
     private String keyQuestions;
 
-    // 상담 후 사후 과제 (내담자가 다음 회차까지 해와야 할 일)
-    private String postConsultationTask;
+    // 내담자와 유사한 스펙을 가진 사람의 직업
+    private String smilarOccupations;
+
+    // 급여 수준
+    private String avaerageSalary;
 }

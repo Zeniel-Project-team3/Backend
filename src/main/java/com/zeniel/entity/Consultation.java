@@ -11,7 +11,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Builder
 @Setter
-public class Consultation extends BaseTimeEntity {
+public class Consultation extends BaseTimeEntity { // 상담 보고서 - 상담사가 상담 후 상담 내용을 직접 작성
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
