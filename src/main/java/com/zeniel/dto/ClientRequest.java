@@ -18,7 +18,6 @@ public class ClientRequest{
     @NotNull(message = "ID는 필수입니다.")
     private Long id;
 
-    @NotBlank(message = "주소는 필수입니다.")
     private String address;
 
     @Enumerated(EnumType.STRING)

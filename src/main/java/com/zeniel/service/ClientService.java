@@ -1,5 +1,7 @@
 package com.zeniel.service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,9 +30,6 @@ public class ClientService {
 
         // 주소
         String newAddress = request.getAddress();
-        if (newAddress == null || newAddress.equals("")) {
-            throw new RuntimeException("주소값은 필수입니다.");
-        }
 
         // 교육 정보
         String newEducation = request.getEducation().toString();
@@ -58,30 +57,98 @@ public class ClientService {
         String newCompetency = request.getCompetency();
         String newDesiredJob = request.getDesiredJob();
 
+        // 동적 SQL 빌드
+        StringBuilder sqlBuilder = new StringBuilder("UPDATE clients SET ");
+        List<Object> params = new ArrayList<>();
+        boolean first = true;
+
+        if (newAddress != null && !newAddress.trim().isEmpty()) {
+            sqlBuilder.append("address = ?");
+            params.add(newAddress);
+            first = false;
+        }
+
+        // education field (enum 변환 후 체크)
+        String eduValue = null;
+        if (request.getEducation() != null) {
+            eduValue = request.getEducation().toString();
+            switch (eduValue) {
+                case "UNIVERSITY":
+                    eduValue = "대졸";
+                    break;
+                case "COLLEGE":
+                    eduValue = "초대졸";
+                    break;
+                case "HIGH_SCHOOL":
+                    eduValue = "고졸";
+                    break;
+                default:
+                    eduValue = "중졸이하";
+                    break;
+            }
+        }
+        if (eduValue != null && !eduValue.trim().isEmpty()) {
+            if (!first) sqlBuilder.append(", ");
+            sqlBuilder.append("education = ?");
+            params.add(eduValue);
+            first = false;
+        }
+
+        if (newUniversity != null && !newUniversity.trim().isEmpty()) {
+            if (!first) sqlBuilder.append(", ");
+            sqlBuilder.append("university = ?");
+            params.add(newUniversity);
+            first = false;
+        }
+
+        if (newMajor != null && !newMajor.trim().isEmpty()) {
+            if (!first) sqlBuilder.append(", ");
+            sqlBuilder.append("major = ?");
+            params.add(newMajor);
+            first = false;
+        }
+
+        if (newBusinessType != null && !newBusinessType.trim().isEmpty()) {
+            if (!first) sqlBuilder.append(", ");
+            sqlBuilder.append("business_type = ?");
+            params.add(newBusinessType);
+            first = false;
+        }
+
+        if (newJoinType != null && !newJoinType.trim().isEmpty()) {
+            if (!first) sqlBuilder.append(", ");
+            sqlBuilder.append("join_type = ?");
+            params.add(newJoinType);
+            first = false;
+        }
+
+        if (newJoinStage != null && !newJoinStage.trim().isEmpty()) {
+            if (!first) sqlBuilder.append(", ");
+            sqlBuilder.append("join_stage = ?");
+            params.add(newJoinStage);
+            first = false;
+        }
+
+        if (newCompetency != null && !newCompetency.trim().isEmpty()) {
+            if (!first) sqlBuilder.append(", ");
+            sqlBuilder.append("competency = ?");
+            params.add(newCompetency);
+            first = false;
+        }
+
+        if (newDesiredJob != null && !newDesiredJob.trim().isEmpty()) {
+            if (!first) sqlBuilder.append(", ");
+            sqlBuilder.append("desired_job = ?");
+            params.add(newDesiredJob);
+            first = false;
+        }
+
+        sqlBuilder.append(" WHERE id = ?");
+        params.add(request.getId());
+
+        jdbcTemplate.update(sqlBuilder.toString(), params.toArray());
+
         String sql = """
-                UPDATE clients 
-                SET address = ?,
-
-                    education = ?,
-                    university = ?,
-                    major = ?,
-
-                    business_type = ?,
-                    join_type = ?,
-                    join_stage = ?,
-                    competency = ?,
-                    desired_job = ?
-                WHERE id = ?
-                """;
-
-        jdbcTemplate.update(sql, 
-            newAddress, 
-            newEducation, newUniversity, newMajor, 
-            newBusinessType, newJoinType, newJoinStage, newCompetency, newDesiredJob, 
-            request.getId()
-        );
-
-        sql = """
                 SELECT * FROM clients WHERE id = ?
                 """;
         Map<String, Object> updated = jdbcTemplate.queryForList(sql, request.getId()).get(0);
