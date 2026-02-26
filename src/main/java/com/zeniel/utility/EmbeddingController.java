@@ -18,7 +18,7 @@ public class EmbeddingController {
         return "콘솔 확인";
     }
 
-    @PutMapping("/embedding")
+    @PutMapping("/embeddingTest")
     public String embedding() {
         for (Long i = 1L; i <= 150L; i++) {
             embeddingService.saveVector(i);
