@@ -12,15 +12,11 @@ public class ContextBuilder {
                 [기본정보]
                 나이: %d
                 성별: %s
-                학력: %s
                 희망직종: %s
-                역량: %s
                 """.formatted(
                 client.getAge(),
                 client.getGender(),
-                client.getEducation(),
-                client.getDesiredJob(),
-                client.getCompetency()
+                client.getDesiredJob()
             );
     }
 }

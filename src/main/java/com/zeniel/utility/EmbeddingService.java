@@ -11,12 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
-import com.zeniel.entity.Consultation;
 import com.zeniel.entity.client.Clients;
-import com.zeniel.entity.client.Education;
 import com.zeniel.entity.client.Gender;
 
-import io.micrometer.observation.Observation.Context;
 import lombok.extern.slf4j.Slf4j;
 
 // @RequiredArgsConstructor
@@ -33,13 +30,6 @@ public class EmbeddingService {
 
     @Autowired
     private ContextBuilder contextBuilder;
-
-    // private final OpenAIClient openAIClient;
-
-
-    // public EmbeddingService(ChatClient.Builder chatClientBuilder) {
-    //     chatClient = chatClientBuilder.build();
-    // }
 
     public float[] createEmbedding(String text) {
         EmbeddingResponse response = this.embeddingModel.call(
@@ -65,13 +55,6 @@ public class EmbeddingService {
         List<Map<String, Object>> list = jdbcTemplate.queryForList(sql, clientId);
         // log.info("client: {}", list);
 
-        // 🔥 context 생성
-        // client.getAge(),
-        //         client.getGender(),
-        //         client.getEducation(),
-        //         client.getDesiredJob(),
-        //         client.getCompetency()
-
         String stringGender = (String) list.get(0).get("gender");
         Gender gender;
         if (stringGender.equals("남")) {
@@ -80,24 +63,23 @@ public class EmbeddingService {
             gender = Gender.valueOf("FEMALE");
         }
 
-        String stringEducation = (String) list.get(0).get("education");
-        Education education;
-        if (stringEducation.equals("대졸")) {
-            education = Education.valueOf("UNIVERSITY");
-        } else if (stringEducation.equals("초대졸")) {
-            education = Education.valueOf("COLLEGE");
-        } else if (stringEducation.equals("고졸")) {
-            education = Education.valueOf("HIGH_SCHOOL");
-        } else {
-            education = Education.valueOf("MIDDLE_SCHOOL");
-        }
+        // String stringEducation = (String) list.get(0).get("education");
+
+        // Education education;
+        // if (stringEducation.equals("대졸")) {
+        //     education = Education.valueOf("UNIVERSITY");
+        // } else if (stringEducation.equals("초대졸")) {
+        //     education = Education.valueOf("COLLEGE");
+        // } else if (stringEducation.equals("고졸")) {
+        //     education = Education.valueOf("HIGH_SCHOOL");
+        // } else {
+        //     education = Education.valueOf("MIDDLE_SCHOOL");
+        // }
 
         Clients client = Clients.builder()
             .age((Integer) list.get(0).get("age"))
             .gender(gender)
-            .education(education)
             .desiredJob((String) list.get(0).get("desired_job"))
-            .competency((String) list.get(0).get("competency"))
             .build();
 
         // sql = """
