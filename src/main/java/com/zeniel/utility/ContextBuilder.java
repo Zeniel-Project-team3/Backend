@@ -2,12 +2,11 @@ package com.zeniel.utility;
 
 import org.springframework.stereotype.Component;
 
-import com.zeniel.entity.Consultation;
 import com.zeniel.entity.client.Clients;
 
 @Component
 public class ContextBuilder {
-    public String build(Clients client, String consultationSummary) {
+    public String build(Clients client) {
 
         return """
                 [기본정보]
@@ -16,16 +15,12 @@ public class ContextBuilder {
                 학력: %s
                 희망직종: %s
                 역량: %s
-
-                [상담내용]
-                %s
                 """.formatted(
                 client.getAge(),
                 client.getGender(),
                 client.getEducation(),
                 client.getDesiredJob(),
-                client.getCompetency(),
-                consultationSummary
+                client.getCompetency()
             );
     }
 }

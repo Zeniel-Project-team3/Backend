@@ -100,17 +100,17 @@ public class EmbeddingService {
             .competency((String) list.get(0).get("competency"))
             .build();
 
-        sql = """
-                SELECT 상담내역 FROM participants
-                WHERE 연락처 = ?
-                """;
+        // sql = """
+        //         SELECT 상담내역 FROM participants
+        //         WHERE 연락처 = ?
+        //         """;
 
-        String phone = (String) list.get(0).get("phone");
-        list = jdbcTemplate.queryForList(sql, phone);
-        String consultationSummary = (String) list.get(0).get("상담내역");
+        // String phone = (String) list.get(0).get("phone");
+        // list = jdbcTemplate.queryForList(sql, phone);
+        // String consultationSummary = (String) list.get(0).get("상담내역");
         // log.info("consultation: {}", consultationSummary);
 
-        String context = contextBuilder.build(client, consultationSummary);
+        String context = contextBuilder.build(client);
         // consultation.setContextText(context);
         log.info("context: {}", context);
 
