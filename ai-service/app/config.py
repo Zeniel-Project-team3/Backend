@@ -41,5 +41,11 @@ class Settings(BaseSettings):
     llm_max_output_tokens: int = 380
     openai_timeout_seconds: float = 12.0
 
+    # fast(5초 목표, 기본) | accuracy(정확도 우선)
+    recommend_mode: str = Field(
+        default="fast",
+        validation_alias=AliasChoices("RECOMMEND_MODE", "recommend_mode"),
+    )
+
 
 settings = Settings()

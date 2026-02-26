@@ -177,8 +177,17 @@ def build_llm_recommendation(
     if not similar_cases:
         return build_rule_based_recommendation(similar_cases)
 
-    mode = (settings.llm_mode or "quick").lower()
-    max_cases = min(settings.llm_max_cases if settings.llm_max_cases > 0 else 5, len(similar_cases))
+    is_fast = (settings.recommend_mode or "fast").strip().lower() == "fast"
+    if is_fast:
+        max_cases = min(3, len(similar_cases))
+        max_tokens = 380
+        temperature = 0.2
+        mode = "quick"
+    else:
+        max_cases = min(5, len(similar_cases))
+        max_tokens = 550
+        temperature = 0.3
+        mode = "accuracy"
     base = build_rule_based_recommendation(similar_cases)
     compressed_cases = similar_cases[:max_cases]
     compressed_cases = [
@@ -242,8 +251,8 @@ def build_llm_recommendation(
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": json.dumps(user_prompt, ensure_ascii=False)},
             ],
-            temperature=0.2 if mode == "quick" else 0.3,
-            max_tokens=settings.llm_max_output_tokens,
+            temperature=temperature,
+            max_tokens=max_tokens,
         )
         content = response.choices[0].message.content or "{}"
 

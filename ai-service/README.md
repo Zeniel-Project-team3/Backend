@@ -141,6 +141,14 @@ cp .env.example .env
 **선택:**
 
 - `INGEST_EXCEL_PATH` — 엑셀 ingest(`POST /api/v1/ingest-employment-training`) 사용 시 엑셀 파일 절대 경로. 비우면 ingest 호출 시 503.
+- `RECOMMEND_MODE` — 추천 모드. **기본값 `fast`**(5초 내 응답 목표). 정확도 우선이면 `accuracy`.
+
+**추천 모드 (RECOMMEND_MODE)**
+
+| 값 | 설명 |
+|----|------|
+| **fast** (기본) | 5초 버전. 유사 케이스 3건만 GPT에 전달, 토큰·온도 제한으로 응답 속도 우선. |
+| **accuracy** | 정확도 우선. 유사 케이스 5건 전달, 토큰·온도 완화로 추천 품질 우선. |
 
 **예시 (로컬 pgvector 컨테이너 사용 시):**
 
