@@ -6,13 +6,7 @@ import com.zeniel.dto.ConsultationUploadResponse;
 import com.zeniel.service.ConsultationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
@@ -22,17 +16,13 @@ public class ConsultationController {
 
     private final ConsultationService consultationService;
 
-    @PostMapping("/upload")
+    @PostMapping("/upload/{clientId}")
     public ResponseEntity<ConsultationUploadResponse> upload(
             @RequestPart("file") MultipartFile file,
-            @RequestPart("name") String name,
-            @RequestPart("residentId") String residentId
+            @PathVariable Long clientId
     ) {
-
-        ConsultationUploadRequest request = new ConsultationUploadRequest(name, residentId);
-
         ConsultationUploadResponse response =
-                consultationService.upload(file, request);
+                consultationService.upload(file, clientId);
 
         return ResponseEntity.ok(response);
     }

@@ -27,22 +27,12 @@ public class ConsultationService {
     @Transactional
     public ConsultationUploadResponse upload(
             MultipartFile file,
-            ConsultationUploadRequest request
+            Long clientId
     ) {
         // 1단계: 내담자 조회
         Clients client = clientRepository
-                .findByNameAndResidentId(
-                        request.getName(),
-                        request.getResidentId()
-                )
-                .orElseGet(() -> {
-                    // DB에 없으면 새 내담자 생성
-                    Clients newClient = Clients.builder()
-                            .name(request.getName())
-                            .residentId(request.getResidentId())
-                            .build();
-                    return clientRepository.save(newClient);
-                });
+                .findById(clientId)
+                .orElseThrow(()->new RuntimeException("내담자 정보를 확인해주세요"));
 
         // 2단계: 파일 텍스트 추출
         String rawText = extractText(file);
