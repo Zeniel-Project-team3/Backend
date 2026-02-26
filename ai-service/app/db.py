@@ -71,13 +71,6 @@ def get_client_profile(client_id: int) -> dict[str, Any] | None:
     """
     with get_conn() as conn:
         with conn.cursor() as cur:
-            cur.execute(
-                """
-                ALTER TABLE clients
-                ADD COLUMN IF NOT EXISTS embedding_source_hash VARCHAR(64)
-                """
-            )
-            conn.commit()
             cur.execute(sql, (client_id,))
             row = cur.fetchone()
     if row is None:
@@ -150,45 +143,40 @@ def update_client_embedding(client_id: int, embedding: list[float]) -> None:
 
 
 def get_client_embedding_source_hash(client_id: int) -> str | None:
-    with get_conn() as conn:
-        with conn.cursor() as cur:
-            cur.execute(
-                """
-                ALTER TABLE clients
-                ADD COLUMN IF NOT EXISTS embedding_source_hash VARCHAR(64)
-                """
-            )
-            conn.commit()
-            cur.execute(
-                """
-                SELECT embedding_source_hash
-                FROM clients
-                WHERE id = %s
-                """,
-                (client_id,),
-            )
-            row = cur.fetchone()
-    return row[0] if row else None
+    """embedding_source_hash 컬럼이 없으면 None 반환(에러 없음)."""
+    try:
+        with get_conn() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    SELECT embedding_source_hash
+                    FROM clients
+                    WHERE id = %s
+                    """,
+                    (client_id,),
+                )
+                row = cur.fetchone()
+        return row[0] if row else None
+    except Exception:
+        return None
 
 
 def set_client_embedding_source_hash(client_id: int, source_hash: str) -> None:
-    with get_conn() as conn:
-        with conn.cursor() as cur:
-            cur.execute(
-                """
-                ALTER TABLE clients
-                ADD COLUMN IF NOT EXISTS embedding_source_hash VARCHAR(64)
-                """
-            )
-            cur.execute(
-                """
-                UPDATE clients
-                SET embedding_source_hash = %s
-                WHERE id = %s
-                """,
-                (source_hash, client_id),
-            )
-        conn.commit()
+    """embedding_source_hash 컬럼이 없으면 무시(에러 없음)."""
+    try:
+        with get_conn() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    UPDATE clients
+                    SET embedding_source_hash = %s
+                    WHERE id = %s
+                    """,
+                    (source_hash, client_id),
+                )
+            conn.commit()
+    except Exception:
+        pass
 
 
 def compute_embedding_source_hash(embedding_text: str) -> str:

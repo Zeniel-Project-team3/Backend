@@ -98,6 +98,19 @@ AI 서비스가 사용하는 PostgreSQL 스키마 요약입니다. **pgvector** 
 | `employment` | 취업 이력(취업처·직무·급여 등). 엑셀 ingest로 채움. **job_title**이 있는 행만 유사 케이스 검색에 사용. |
 | `training` | 직업훈련 이력(과정명·기간 등). 엑셀 ingest로 채움. |
 
+**팀 전달용: 테이블별 유일 키 · 필요 필드**
+
+| 테이블 | 유일 키 | 필요한 필드 (AI 서비스가 읽거나 씀) |
+|--------|---------|--------------------------------------|
+| **clients** | `id` | **필수:** id, name, resident_id, age, gender, education, desired_job, competency, address, university, major, embedding. |
+| **employment** | `id` | client_id, job_title, company_name, salary (유사 케이스: 클라이언트당 최신 1건, job_title 있는 행만 사용). |
+| **training** | `id` | client_id, course_name (유사 케이스: 클라이언트당 distinct로 배열). |
+| **consultation** | `id` | client_id, summary (유사 케이스: 클라이언트당 최신 1건). |
+
+- `clients.embedding`은 vector(1536) 타입, pgvector 확장 필요.
+- `embedding_source_hash`는 AI 서비스가 선택적으로 쓰는 컬럼(없어도 동작함). 팀 DB에 없으면 넣지 않아도 됨.
+
+---
 
 ### 어떤 정보를 뽑아서 어디에 merge(사용)하는지
 
