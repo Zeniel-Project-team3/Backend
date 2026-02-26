@@ -55,7 +55,7 @@ public class EmbeddingService {
         return vector;
     }
 
-    public void saveConsultation(Long clientId) {
+    public void saveVector(Long clientId) {
 
         String sql = """
                 SELECT * FROM clients
