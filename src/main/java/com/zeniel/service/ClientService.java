@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.zeniel.dto.ClientRequest;
 import com.zeniel.entity.client.Clients;
 import com.zeniel.utility.EmbeddingService;
 
@@ -22,13 +23,13 @@ public class ClientService {
     private EmbeddingService embeddingService;
 
     @Transactional
-    public Map<String, Object> updateClientData(Clients request) throws Exception {
+    public Map<String, Object> updateClientData(ClientRequest request) {
         log.info("id: {}", request.getId());
 
         // 주소
         String newAddress = request.getAddress();
         if (newAddress == null || newAddress.equals("")) {
-            throw new Exception("주소값은 필수입니다.");
+            throw new RuntimeException("주소값은 필수입니다.");
         }
 
         // 교육 정보

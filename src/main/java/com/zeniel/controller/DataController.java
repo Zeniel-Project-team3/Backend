@@ -1,11 +1,14 @@
 package com.zeniel.controller;
 
 import com.zeniel.dto.ClientListResponse;
+import com.zeniel.dto.ClientRequest;
 import com.zeniel.dto.ConsultationListResponse;
 import com.zeniel.dto.TrainingListResponse;
 import com.zeniel.entity.client.Clients;
 import com.zeniel.service.ClientService;
 import com.zeniel.service.DataService;
+
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -49,11 +52,7 @@ public class DataController {
 
     // 특정 client의 정보를 request에 적힌대로 수정
     @PutMapping("/client")
-    public ResponseEntity<Map<String, Object>> updateClientData(@RequestBody Clients request) {
-        try {
-            return ResponseEntity.ok(clientService.updateClientData(request));
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(Map.of("message", e.getMessage()));
-        }   
+    public ResponseEntity<Map<String, Object>> updateClientData(@Valid @RequestBody ClientRequest request) {
+        return ResponseEntity.ok(clientService.updateClientData(request));
     }
 }
