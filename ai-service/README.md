@@ -171,6 +171,36 @@ docker build -t ai-recommendation-service .
 docker run -d -p 8001:8001 --env-file .env --name ai-recommendation ai-recommendation-service
 ```
 
+---
+
+### GitHub Container Registry (ghcr.io) 이미지
+
+이미지는 **GitHub Container Registry**에 올라가며, 팀원은 빌드 없이 바로 pull해서 쓸 수 있습니다.
+
+**자동 푸시**
+
+- `main` 브랜치에 `ai-service/` 변경이 push되면 GitHub Actions가 이미지를 빌드해 `ghcr.io`에 푸시합니다.
+- 수동 실행: 저장소 **Actions** → **Build and Push ai-service to GHCR** → **Run workflow**.
+
+**이미지 주소 (팀 레포 기준)**
+
+- `ghcr.io/zeniel-project-team3/backend/ai-service:latest`  
+  (또는 `ghcr.io/zeniel-project-team3/backend/ai-service:main`, `ghcr.io/zeniel-project-team3/backend/ai-service:<sha>`)
+
+**로컬에서 pull 후 실행 (빌드 없이)**
+
+```bash
+# 비공개 이미지인 경우: 먼저 로그인 (GitHub 사용자명 + Personal Access Token, scope: read:packages)
+docker login ghcr.io -u <GitHub사용자명> -p <PAT>
+
+docker pull ghcr.io/zeniel-project-team3/backend/ai-service:latest
+docker run -d -p 8001:8001 --env-file .env --name ai-recommendation ghcr.io/zeniel-project-team3/backend/ai-service:latest
+```
+
+레포가 **public**이면 패키지도 public으로 두었을 때 로그인 없이 `docker pull` 가능합니다.
+
+---
+
 동작 확인 (같은 PC에서):
 
 ```bash
