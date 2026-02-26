@@ -15,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
+
 @Service
 @RequiredArgsConstructor
 public class ConsultationService {
@@ -42,6 +44,7 @@ public class ConsultationService {
 
         // 4단계: 상담 기록 생성 + 내담자에 연결
         Consultation consultation = Consultation.builder()
+                .consultDate(LocalDate.now())
                 .rawText(rawText)
                 .summary(summary)
                 .build();
