@@ -20,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class ConsultationService {
 
     private final ClientRepository clientRepository;
+    private final ConsultationRepository consultationRepository;
     private final RestTemplate restTemplate;
 
     @Transactional
