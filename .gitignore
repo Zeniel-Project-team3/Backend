@@ -244,4 +244,5 @@ ai-service/.venv
 ai-service/venv
 ai-service/app/__pycache__
 상담리스트_가공데이터_202602.xlsx
+ai-service/docs
 
