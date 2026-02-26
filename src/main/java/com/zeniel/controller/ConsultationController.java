@@ -22,8 +22,11 @@ public class ConsultationController {
     @PostMapping("/upload")
     public ResponseEntity<ConsultationUploadResponse> upload(
             @RequestPart("file") MultipartFile file,
-            @RequestBody ConsultationUploadRequest request
+            @RequestPart("name") String name,
+            @RequestPart("residentId") String residentId
     ) {
+
+        ConsultationUploadRequest request = new ConsultationUploadRequest(name, residentId);
 
         ConsultationUploadResponse response =
                 consultationService.upload(file, request);
