@@ -52,4 +52,6 @@ public interface ClientRepository extends JpaRepository<Clients, Long> {
     Page<ClientListProjection> findClientList(Pageable pageable);
 
     Optional<Clients> findByNameAndResidentId(String name, String residentId);
+
+    Optional<Clients> findByNameAndPhone(String name, String phone);
 }
