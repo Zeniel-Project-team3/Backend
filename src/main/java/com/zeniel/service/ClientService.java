@@ -5,15 +5,26 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.zeniel.entity.client.Clients;
+import com.zeniel.utility.EmbeddingService;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Service
+@Slf4j
 public class ClientService {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
+    @Autowired
+    private EmbeddingService embeddingService;
+
+    @Transactional
     public Map<String, Object> updateClientData(Clients request) throws Exception {
+        log.info("id: {}", request.getId());
+
         // 주소
         String newAddress = request.getAddress();
         if (newAddress == null || newAddress.equals("")) {
@@ -73,6 +84,9 @@ public class ClientService {
                 SELECT * FROM clients WHERE id = ?
                 """;
         Map<String, Object> updated = jdbcTemplate.queryForList(sql, request.getId()).get(0);
+
+        // 임베딩 반영
+        embeddingService.saveVector(request.getId());
         return updated;        
     }
 }
