@@ -81,24 +81,16 @@ public class ConsultationService {
                 .orElseThrow(() -> new RuntimeException("상담자 정보가 존재하지 않습니다."));
 
         // 상담 회차 계산 (sessionCount = (각각의 client가 가지는 Consultation 엔티티의 총 개수) + 1)
-        int sessionCount = (client.getConsultations() != null ? client.getConsultations().size() : 0) + 1;
+        // 상담 보고서 데이터가 없을 경우 기본값 1회차
+        // int sessionCount = (client.getConsultations() != null ? client.getConsultations().size() : 1) + 1;
 
         AiRequestDto request = AiRequestDto.builder()
-                .name(client.getName())
-                .gender(client.getGender().name())
-                .age(client.getAge())
-                .education(client.getEducation().name())
-                .major(client.getMajor())
-                .joinType(client.getJoinType())
-                .sessionCount(sessionCount)
-                .joinStage(client.getJoinStage())
-                .desiredJob(client.getDesiredJob())
-                .competency(client.getCompetency())
-                .businessType(client.getBusinessType())
+                .clientId(client.getId())
+                .topK(5) // 유사한 상담 시나리오 몇 개를 가져올지 설정 (기본값 5)
                 .build();
 
         // AI 서버로 내담자 데이터를 전송 후 분석 결과를 AiResponseDto 객체로 자동 변환
-        String aiResponseUrl = "http://localhost:8005";
+        String aiResponseUrl = "http://localhost:8001/api/v1/recommend";
         return restTemplate.postForObject(aiResponseUrl, request, AiResponseDto.class);
     }
 }

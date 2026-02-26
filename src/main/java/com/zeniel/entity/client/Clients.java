@@ -82,7 +82,7 @@ public class Clients extends BaseTimeEntity {
 
     @Default
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "client_id")
+    @JoinColumn(name = "client_id") // 상담회차
     private List<Consultation> consultations = new ArrayList<>();
 
     @Default
