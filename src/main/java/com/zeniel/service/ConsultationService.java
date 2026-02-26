@@ -85,7 +85,7 @@ public class ConsultationService {
                 .build();
 
         // AI 서버로 내담자 데이터를 전송 후 분석 결과를 AiResponseDto 객체로 자동 변환
-        String aiResponseUrl = "http://localhost:8001/api/v1/recommend";
+        String aiResponseUrl = "http://localhost:8005/api/v1/recommend";
         return restTemplate.postForObject(aiResponseUrl, request, AiResponseDto.class);
     }
 }

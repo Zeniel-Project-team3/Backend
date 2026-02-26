@@ -1,35 +1,80 @@
 package com.zeniel.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@JsonIgnoreProperties(ignoreUnknown = true) // 혹시 응답에 필드 추가돼도 안 터지게
 public class AiResponseDto {
 
     private Long clientId;
+    private MaskedInput maskedInput;
+    private String queryText;
+    private List<SimilarCase> similarCases;
+    private Recommendation recommendation;
 
-    // 금회차 핵심 목표 (상담의 방향성)
-    private String consultationGoal;
+    @Getter @Setter
+    @NoArgsConstructor @AllArgsConstructor @Builder
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class MaskedInput {
+        private Long clientId;
+        private String name;
+        private String residentId;
+        private Integer age;
+        private String gender;      // MALE/FEMALE (네 프로젝트 enum이면 enum으로 바꿔도 됨)
+        private String education;   // COLLEGE/UNIVERSITY... (enum이면 enum)
+        private String desiredJob;
+        private String competency;  // C/D... (enum이면 enum)
+        private String address;
+        private String university;
+        private String major;
+    }
 
-    // 필수 이행 및 고지 사항 (미이행 시 수당 부지급 등 법적 리스크 방지)
-    private String mandatoryNotice;
+    @Getter @Setter
+    @NoArgsConstructor @AllArgsConstructor @Builder
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class SimilarCase {
+        private Long clientId;
+        private Double score;
+        private Integer age;
+        private String gender;
+        private String desiredJob;
+        private String competency;
+        private String education;
+        private String major;
+        private String university;
 
-    // 제안할 서비스 (예: 직업심리검사, 일경험 등)
-    private String suggestedServices;
+        private String jobTitle;
+        private String companyName;
+        private Integer salary;
 
-    // 이번 상담 핵심 질문 (내담자의 의지를 파악할 질문)
-    private String keyQuestions;
+        private List<String> trainings;
+        private String consultationSummary;
+    }
 
-    // 내담자와 유사한 스펙을 가진 사람의 직업
-    private String smilarOccupations;
+    @Getter @Setter
+    @NoArgsConstructor @AllArgsConstructor @Builder
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class Recommendation {
+        private List<String> recommendedJobsByProfile;
+        private List<String> recommendedJobsByDesiredJob;
+        private List<String> recommendedTrainings;
+        private List<String> recommendedCompanies;
 
-    // 급여 수준
-    private String avaerageSalary;
+        private String expectedSalaryRange;
+        private List<String> suggestedServices;
+        private List<String> coreQuestions;
+
+        private String reason;
+    }
 }
