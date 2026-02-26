@@ -2,7 +2,6 @@ package com.zeniel.service;
 
 import com.zeniel.dto.AiRequestDto;
 import com.zeniel.dto.AiResponseDto;
-import com.zeniel.dto.ConsultationUploadRequest;
 import com.zeniel.dto.ConsultationUploadResponse;
 import com.zeniel.entity.Consultation;
 import com.zeniel.entity.client.Clients;
@@ -34,7 +33,7 @@ public class ConsultationService {
         // 1단계: 내담자 조회
         Clients client = clientRepository
                 .findById(clientId)
-                .orElseThrow(()->new RuntimeException("내담자 정보를 확인해주세요"));
+                .orElseThrow(() -> new RuntimeException("내담자 정보를 확인해주세요"));
 
         // 2단계: 파일 텍스트 추출
         String rawText = extractText(file);

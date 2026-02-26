@@ -1,13 +1,8 @@
 package com.zeniel.controller;
 
-import com.zeniel.dto.ClientListResponse;
-import com.zeniel.dto.ClientRequest;
-import com.zeniel.dto.ConsultationListResponse;
-import com.zeniel.dto.TrainingListResponse;
-import com.zeniel.entity.client.Clients;
+import com.zeniel.dto.*;
 import com.zeniel.service.ClientService;
 import com.zeniel.service.DataService;
-
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -15,16 +10,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
-
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 
 @RestController
@@ -54,5 +43,11 @@ public class DataController {
     @PutMapping("/client")
     public ResponseEntity<Map<String, Object>> updateClientData(@Valid @RequestBody ClientRequest request) {
         return ResponseEntity.ok(clientService.updateClientData(request));
+    }
+
+    @PostMapping("/training/{clientId}")
+    public ResponseEntity<Void> addTrainings(@RequestBody CreateTrainingRequest request, @PathVariable Long clientId) {
+        dataService.addTrainings(request, clientId);
+        return ResponseEntity.ok().build();
     }
 }
