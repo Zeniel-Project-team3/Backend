@@ -1,7 +1,7 @@
 package com.zeniel.repository;
 
-import com.zeniel.entity.training.Training;
+import com.zeniel.entity.Consultation;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface ConsultationRepository extends JpaRepository<Training, Long> {
+public interface ConsultationRepository extends JpaRepository<Consultation, Long> {
 }
