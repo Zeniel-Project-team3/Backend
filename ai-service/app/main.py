@@ -86,8 +86,13 @@ def re_embedding() -> ReEmbeddingResponseDto:
 
 @app.post("/api/v1/ingest-employment-training", response_model=IngestResponseDto)
 def ingest_employment_training() -> IngestResponseDto:
+    if not settings.ingest_excel_path:
+        raise HTTPException(
+            status_code=503,
+            detail="INGEST_EXCEL_PATH not set. Set the env var to the Excel file path (e.g. /path/to/상담리스트_가공데이터_202602.xlsx).",
+        )
     try:
-        result = ingest_employment_training_from_excel("/home/kosa/Backend/상담리스트_가공데이터_202602.xlsx")
+        result = ingest_employment_training_from_excel(settings.ingest_excel_path)
         return IngestResponseDto(**result)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Ingest failed: {e}") from e

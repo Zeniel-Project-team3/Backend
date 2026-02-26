@@ -243,10 +243,10 @@ def search_similar_cases(
         )
         employment_join = (
             f"""
-            LEFT JOIN LATERAL (
+            INNER JOIN LATERAL (
                 SELECT e2.job_title, e2.company_name, e2.salary
                 FROM {employment_table} e2
-                WHERE e2.client_id = c.id
+                WHERE e2.client_id = c.id AND e2.job_title IS NOT NULL AND e2.job_title <> ''
                 ORDER BY e2.id DESC
                 LIMIT 1
             ) e ON TRUE
@@ -276,9 +276,13 @@ def search_similar_cases(
             f"""
             COALESCE(
                 (
-                    SELECT json_agg(t.course_name ORDER BY t.id DESC)
-                    FROM {training_table} t
-                    WHERE t.client_id = ranked.client_id
+                    SELECT json_agg(sub.course_name ORDER BY sub.id DESC)
+                    FROM (
+                        SELECT DISTINCT ON (t.course_name) t.course_name, t.id
+                        FROM {training_table} t
+                        WHERE t.client_id = ranked.client_id
+                        ORDER BY t.course_name, t.id DESC
+                    ) sub
                 ),
                 '[]'::json
             ) AS trainings
@@ -296,7 +300,8 @@ def search_similar_cases(
                 c.education,
                 c.major,
                 c.university,
-                c.address,
+                c.age,
+                c.gender,
                 c.embedding <=> (%s)::vector AS distance,
                 {consultation_select},
                 {employment_select}
@@ -326,12 +331,24 @@ def search_similar_cases(
             )
             rows = cur.fetchall()
 
+    def _dedup_trainings(raw: Any) -> list:
+        if isinstance(raw, str):
+            raw = json.loads(raw)
+        if not isinstance(raw, list):
+            return []
+        seen: set[str] = set()
+        out: list = []
+        for t in raw:
+            s = str(t).strip() if t is not None else ""
+            if s and s not in seen:
+                seen.add(s)
+                out.append(t)
+        return out
+
     results: list[dict[str, Any]] = []
     for row in rows:
-        trainings = row[12]
-        if isinstance(trainings, str):
-            trainings = json.loads(trainings)
-        distance = float(row[7]) if row[7] is not None else 1.0
+        trainings = _dedup_trainings(row[13])
+        distance = float(row[8]) if row[8] is not None else 1.0
         score = max(0.0, 1.0 - distance)
         results.append(
             {
@@ -341,13 +358,14 @@ def search_similar_cases(
                 "education": row[3],
                 "major": row[4],
                 "university": row[5],
-                "address": row[6],
+                "age": row[6] if isinstance(row[6], int) else None,
+                "gender": row[7],
                 "score": round(score, 6),
-                "consultationSummary": row[8],
-                "jobTitle": row[9],
-                "companyName": row[10],
-                "salary": row[11] if isinstance(row[11], int) else None,
-                "trainings": trainings if isinstance(trainings, list) else [],
+                "consultationSummary": row[9],
+                "jobTitle": row[10],
+                "companyName": row[11],
+                "salary": row[12] if isinstance(row[12], int) else None,
+                "trainings": trainings,
             }
         )
     return results
@@ -442,6 +460,36 @@ def ingest_employment_training_from_excel(excel_path: str) -> dict[str, int]:
                     summary TEXT,
                     iap_date DATE,
                     iap_period INTEGER,
+                    created_at TIMESTAMP DEFAULT NOW(),
+                    updated_at TIMESTAMP DEFAULT NOW()
+                )
+                """
+            )
+            cur.execute(
+                """
+                CREATE TABLE IF NOT EXISTS training (
+                    id BIGSERIAL PRIMARY KEY,
+                    client_id BIGINT NOT NULL REFERENCES clients(id) ON DELETE CASCADE,
+                    course_name VARCHAR(500),
+                    start_date DATE,
+                    end_date DATE,
+                    allowance VARCHAR(100),
+                    completed BOOLEAN,
+                    created_at TIMESTAMP DEFAULT NOW(),
+                    updated_at TIMESTAMP DEFAULT NOW()
+                )
+                """
+            )
+            cur.execute(
+                """
+                CREATE TABLE IF NOT EXISTS employment (
+                    id BIGSERIAL PRIMARY KEY,
+                    client_id BIGINT NOT NULL REFERENCES clients(id) ON DELETE CASCADE,
+                    company_name VARCHAR(255),
+                    job_title VARCHAR(255),
+                    salary INTEGER,
+                    employ_date DATE,
+                    resign_date DATE,
                     created_at TIMESTAMP DEFAULT NOW(),
                     updated_at TIMESTAMP DEFAULT NOW()
                 )

@@ -11,12 +11,13 @@ class AiRequestDto(BaseModel):
 class SimilarCaseDto(BaseModel):
     clientId: int
     score: float
+    age: int | None = None
+    gender: str | None = None
     desiredJob: str | None = None
     competency: str | None = None
     education: str | None = None
     major: str | None = None
     university: str | None = None
-    address: str | None = None
     jobTitle: str | None = None
     companyName: str | None = None
     salary: int | None = None
@@ -25,8 +26,10 @@ class SimilarCaseDto(BaseModel):
 
 
 class AiRecommendationDto(BaseModel):
+    """프로필만 고려한 추천 직무(희망직종 미반영), 희망직종 반영 추천 직무 두 가지."""
+    recommendedJobsByProfile: list[str] = Field(default_factory=list, description="나이·성별·학력·역량·전공만 고려한 추천 직무 3개")
+    recommendedJobsByDesiredJob: list[str] = Field(default_factory=list, description="희망직종을 고려한 추천 직무 3개")
     recommendedTrainings: list[str] = Field(default_factory=list)
-    recommendedJobs: list[str] = Field(default_factory=list)
     recommendedCompanies: list[str] = Field(default_factory=list)
     expectedSalaryRange: str | None = None
     suggestedServices: list[str] = Field(default_factory=list)

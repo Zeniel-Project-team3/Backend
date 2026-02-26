@@ -30,6 +30,10 @@ class Settings(BaseSettings):
     )
 
     openai_api_key: str = ""
+    ingest_excel_path: str = Field(
+        default="",
+        validation_alias=AliasChoices("INGEST_EXCEL_PATH", "ingest_excel_path"),
+    )
     embedding_model: str = "text-embedding-3-small"
     chat_model: str = "gpt-4o-mini"
     llm_mode: str = "quick"

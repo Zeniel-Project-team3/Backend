@@ -67,14 +67,12 @@ def mask_request_payload(payload: dict[str, Any]) -> dict[str, Any]:
 
 
 def build_embedding_text(masked_payload: dict[str, Any]) -> str:
+    """임베딩용 텍스트. 나이·성별·희망직종만 사용해 유사도 검색에 쓴다."""
     desired_jobs = normalize_desired_jobs(masked_payload.get("desiredJob"))
-    desired_jobs_text = ", ".join(desired_jobs) if desired_jobs else None
+    desired_jobs_text = ", ".join(desired_jobs) if desired_jobs else "(미정)"
     return (
         "[기본정보]\n"
         f"나이: {masked_payload.get('age')}\n"
         f"성별: {masked_payload.get('gender')}\n"
-        f"학력: {masked_payload.get('education')}\n"
         f"희망직종: {desired_jobs_text}\n"
-        f"역량: {masked_payload.get('competency')}\n"
-        f"전공: {masked_payload.get('major')}\n"
     )

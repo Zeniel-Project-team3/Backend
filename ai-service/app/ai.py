@@ -59,9 +59,13 @@ def build_rule_based_recommendation(similar_cases: list[dict[str, Any]]) -> dict
     if salaries:
         salary_range = f"{min(salaries):,}원 ~ {max(salaries):,}원"
 
+    jobs_dedup = dedup_keep_order(job_candidates, 5)
+    # 프로필(유사 케이스)만 본 추천 = 유사 케이스의 실제 취업 직종(jobTitle)으로 채움
+    by_profile = dedup_keep_order(job_candidates, 3)
     return {
+        "recommendedJobsByProfile": by_profile,
+        "recommendedJobsByDesiredJob": jobs_dedup,
         "recommendedTrainings": dedup_keep_order(training_candidates, 5),
-        "recommendedJobs": dedup_keep_order(job_candidates, 5),
         "recommendedCompanies": dedup_keep_order(company_candidates, 5),
         "expectedSalaryRange": salary_range,
         "suggestedServices": [
@@ -186,7 +190,6 @@ def build_llm_recommendation(
             "education": case.get("education"),
             "major": case.get("major"),
             "university": case.get("university"),
-            "address": case.get("address"),
             "jobTitles": normalize_desired_jobs(case.get("jobTitle")),
             "companyName": case.get("companyName"),
             "salary": case.get("salary"),
@@ -196,15 +199,16 @@ def build_llm_recommendation(
         for case in compressed_cases
     ]
 
+    desired_jobs_list = normalize_desired_jobs(masked_input.get("desiredJob"))
+
     system_prompt = (
         "너는 고용 상담 AI다. 반드시 JSON만 반환한다. "
         "PII(이름/주민번호)는 절대 생성하거나 복원하지 않는다. "
-        "다음 규칙을 지켜라: "
-        "recommendedJobs는 꼭 3개만, 해당 내담자에게 적합한 순서(1위~3위)로 나열. "
-        "recommendedTrainings는 추천 직무 3개와 연관된 과정명만 3개, 중요도순. "
-        "expectedSalaryRange는 추천 직무에 맞는 연봉 범위 한 문장. "
-        "suggestedServices는 3개, 중요도순. "
-        "coreQuestions는 3개, 이번 상담에서 쓸 핵심 질문으로 중요도순."
+        "추천 직무는 반드시 두 종류를 모두 채운다: "
+        "(1) recommendedJobsByProfile: 나이·성별·학력·역량·전공만 보고(희망직종은 보지 않음) 적합한 직무 3개, 1위~3위. 꼭 3개. "
+        "(2) recommendedJobsByDesiredJob: 내담자 희망직종을 반영한 직무 3개, 1위~3위. 꼭 3개. "
+        "recommendedTrainings는 위 추천 직무와 연관된 과정명 3개. "
+        "expectedSalaryRange, suggestedServices 3개, coreQuestions 3개, recommendedCompanies, reason 한 문장."
     )
     user_prompt = {
         "mode": mode,
@@ -212,14 +216,15 @@ def build_llm_recommendation(
             "age": masked_input.get("age"),
             "gender": masked_input.get("gender"),
             "education": masked_input.get("education"),
-            "desiredJobs": normalize_desired_jobs(masked_input.get("desiredJob")),
+            "desiredJobs": desired_jobs_list,
             "competency": masked_input.get("competency"),
             "major": masked_input.get("major"),
         },
         "similarCases": compressed_cases,
         "baseRecommendation": base,
         "outputFormat": {
-            "recommendedJobs": "배열 3개, 1위~3위 직무",
+            "recommendedJobsByProfile": "배열 3개, 나이·성별·학력·역량·전공만 고려한 직무(희망직종 미반영)",
+            "recommendedJobsByDesiredJob": "배열 3개, 희망직종 반영한 직무",
             "recommendedTrainings": "배열 3개, 추천 직무와 연관된 과정명",
             "recommendedCompanies": "배열",
             "expectedSalaryRange": "추천 직무 기준 연봉 범위 문자열",
@@ -243,13 +248,17 @@ def build_llm_recommendation(
         content = response.choices[0].message.content or "{}"
 
         parsed = json.loads(content)
+        fallback_by_profile = base.get("recommendedJobsByProfile") or []
         base.update({k: v for k, v in parsed.items() if v is not None})
-        # 직무 3개, 과정 3개, 서비스 3개, 질문 3개로 제한
-        def take3(lst: list[str] | None) -> list[str]:
+        def take3(lst: list | None) -> list[str]:
             if not lst:
                 return []
-            return [x for x in lst if x][:3]
-        base["recommendedJobs"] = take3(base.get("recommendedJobs"))
+            return [str(x).strip() for x in lst if x][:3]
+        base["recommendedJobsByProfile"] = take3(base.get("recommendedJobsByProfile"))
+        base["recommendedJobsByDesiredJob"] = take3(base.get("recommendedJobsByDesiredJob"))
+        # GPT가 recommendedJobsByProfile을 비워두면 rule-based(유사 케이스 jobTitle)로 채움
+        if not base["recommendedJobsByProfile"]:
+            base["recommendedJobsByProfile"] = take3(fallback_by_profile) or take3(base.get("recommendedJobsByDesiredJob"))
         base["recommendedTrainings"] = take3(base.get("recommendedTrainings"))
         base["suggestedServices"] = take3(base.get("suggestedServices"))
         base["coreQuestions"] = take3(base.get("coreQuestions"))
