@@ -180,6 +180,7 @@ public class ClientService {
         // 1단계: client 엔티티 생성 후 DB 저장
         Clients client = Clients.builder()
                 .name(request.getName())
+                .phone(request.getPhone())
                 .residentId(request.getResidentId())
                 .age(request.getAge())
                 .gender(request.getGender())

@@ -2,6 +2,7 @@ package com.zeniel.dto;
 
 import com.zeniel.entity.client.Education;
 import com.zeniel.entity.client.Gender;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -9,8 +10,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ClientRegisterRequest {
 
+    @NotBlank
     private String name;          // 이름
+    @NotBlank
     private String residentId;    // 주민번호
+    @NotBlank
+    private String phone; // 연락처
 
     private Integer age;          // 나이
     private Gender gender;        // 성별 (MALE / FEMALE)
